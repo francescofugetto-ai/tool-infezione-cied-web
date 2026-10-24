@@ -1,0 +1,773 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tool Infezione CIED">
+<meta name="theme-color" content="#FAF9F7">
+<script data-iphone="sentinella">
+(function(){
+var h=document.documentElement, msg="";
+function ha(c){ return (" "+h.className+" ").indexOf(" "+c+" ")>=0; }
+// L'errore puo' arrivare prima che l'avviso esista — uno script in <head> che
+// non si lascia leggere —: il messaggio si tiene da parte e si scrive quando
+// la pagina c'e'.
+function scrivi(){
+  var e=document.getElementById("nmerr");
+  if(e&&msg) e.textContent="Errore del motore: "+msg;
+}
+function ko(m){
+  if(m&&!msg) msg=m;
+  if(!ha("motore-ko")) h.className+=" motore-ko";
+  scrivi();
+}
+h.className+=" js";
+window.onerror=function(m,src,riga,col){
+  m=String(m);
+  if(/^Script error\.?$/.test(m)) m="il browser non ne mostra il dettaglio (\u00abScript error.\u00bb)";
+  ko(m+(riga?" (riga "+riga+(col?", colonna "+col:"")+")":""));
+};
+document.addEventListener("DOMContentLoaded",function(){
+  if(!ha("motore-ok")) ko(msg||"il motore non ha completato l'avvio"); else scrivi();
+});
+})();
+</script>
+<title>Infezione del CIED — estrazione, durata, reimpianto</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#FAF9F7; --surface:#FFFFFF; --surface-alt:#F3F2EF;
+    --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+    --text-primary:#0B0B0B; --text-secondary:#52514E; --text-muted:#76746F;
+    --accent-blue:#2A78D6;   --accent-blue-bg:#E6F1FB;   --accent-blue-border:#B5D4F4;
+    --accent-amber:#BA7517;  --accent-amber-bg:#FAEEDA;  --accent-amber-border:#FAC775;
+    --accent-red:#A32D2D;    --accent-red-bg:#FCEBEB;    --accent-red-border:#F7C1C1;
+    --accent-green:#3B6D11;  --accent-green-bg:#EAF3DE;  --accent-green-border:#C0DD97;
+    --cor-1:#3B8E5A; --cor-2a:#E0A82E; --cor-2b:#DE7E3C; --cor-3:#B33A3A;
+    --k0:#2E7D4F; --k0-bg:#E2F3E8; --k0-bd:#A6D9B8;
+    --k1:#2A78D6; --k1-bg:#E3EFFB; --k1-bd:#A9CBF1;
+    --k2:#8A6A00; --k2-bg:#FBF3C8; --k2-bd:#EBD56C;
+    --k3:#B45309; --k3-bg:#FDEBD8; --k3-bd:#F4BD85;
+    --k4:#A32D2D; --k4-bg:#FCE3E3; --k4-bd:#F0A9A9;
+    --grid:rgba(42,120,214,.08);
+    --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --display:'IBM Plex Sans Condensed','Arial Narrow',-apple-system,'Segoe UI',sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Consolas,'Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#111418; --surface:#181C22; --surface-alt:#20252D;
+      --border:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.19);
+      --text-primary:#E7EAEE; --text-secondary:#B8BEC7; --text-muted:#949BA5;
+      --accent-blue:#72AAEE;   --accent-blue-bg:#18283A;   --accent-blue-border:#2E4B6C;
+      --accent-amber:#E3A94F;  --accent-amber-bg:#30250F;  --accent-amber-border:#5D4719;
+      --accent-red:#EF8E8E;    --accent-red-bg:#361B1B;    --accent-red-border:#6B3232;
+      --accent-green:#95C873;  --accent-green-bg:#1C2A13;  --accent-green-border:#3C5626;
+      --k0:#8FD3A8; --k0-bg:#132B1D; --k0-bd:#2D5A3E;
+      --k1:#8EC0F5; --k1-bg:#16283C; --k1-bd:#2F5378;
+      --k2:#EDD36A; --k2-bg:#2C260C; --k2-bd:#5E5120;
+      --k3:#F3B27A; --k3-bg:#33210F; --k3-bd:#6B4524;
+      --k4:#F29A9A; --k4-bg:#361B1B; --k4-bd:#6B3232;
+      --grid:rgba(114,170,238,.07);
+      color-scheme:dark;
+    }
+  }
+  body { font-family:var(--font); background:var(--bg); color:var(--text-primary); font-size:14.5px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .page { max-width:960px; margin:0 auto; padding:0 16px 4rem; }
+  strong, b { font-weight:600; }
+  em { font-style:italic; }
+  .muted { color:var(--text-muted); }
+  .hero { margin:0 -16px 0; padding:2.2rem 16px 1.3rem; border-bottom:1px solid var(--border);
+          background-color:var(--bg);
+          background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+          background-size:22px 22px; }
+  .kicker { font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-blue); margin-bottom:8px; }
+  .headline { font-family:var(--display); font-size:30px; font-weight:700; line-height:1.12; margin-bottom:10px; }
+  .lede { font-size:14.5px; color:var(--text-secondary); max-width:760px; margin-bottom:12px; }
+  .lede strong { color:var(--text-primary); }
+  .meta-row { display:flex; flex-wrap:wrap; gap:6px 8px; font-size:12px; }
+  .meta-chip { background:var(--surface); border:1px solid var(--border-strong); border-radius:99px; padding:2px 10px; color:var(--text-secondary); overflow-wrap:anywhere; }
+  .meta-chip strong { color:var(--text-primary); }
+  .bar { position:-webkit-sticky;position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--border-strong);
+         margin:0 -16px 1.2rem; padding:8px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; }
+  .bar .lbl { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .bar .sp { flex:1 1 auto; }
+  .btn { font:600 12.5px var(--font); padding:6px 13px; border-radius:99px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
+  .btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); }
+  .stage { display:flex; align-items:baseline; gap:10px; margin:2rem 0 .7rem; padding-bottom:6px; border-bottom:2px solid var(--border-strong); }
+  .stage-n { font-family:var(--mono); font-size:12px; font-weight:600; color:#FFFFFF; background:var(--accent-blue); border-radius:6px; padding:1px 7px; }
+  .stage-t { font-family:var(--display); font-size:20px; font-weight:700; line-height:1.2; }
+  .stage-w { margin-left:auto; font-size:11.5px; color:var(--text-muted); text-align:right; }
+  .card { background:var(--surface); border:1px solid var(--border-strong); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .card h3 { font-size:13px; font-weight:600; letter-spacing:.02em; margin-bottom:8px; color:var(--text-secondary); }
+  .card h3.sep { margin-top:12px; padding-top:10px; border-top:1px solid var(--border-strong); }
+  .fl { font-size:12.5px; font-weight:600; color:var(--text-secondary); min-width:150px; }
+  .fl small { display:block; font-weight:400; color:var(--text-muted); font-size:11.5px; }
+  input[type=number] { font:500 15px var(--font); color:var(--text-primary); background:var(--surface); border:1px solid var(--border-strong); border-radius:8px; padding:6px 9px; width:92px; text-align:center; }
+  .seg { display:inline-flex; flex-wrap:wrap; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; max-width:100%; }
+  .seg label { position:relative; cursor:pointer; }
+  .seg input { position:absolute; opacity:0; width:1px; height:1px; }
+  .seg span { display:block; padding:6px 12px; font-size:13.5px; font-weight:500; color:var(--text-secondary); border-right:1px solid var(--border); }
+  .seg label:last-child span { border-right:none; }
+  .seg input:checked + span { background:var(--text-primary); color:var(--bg); }
+  .seg input:focus-visible + span { outline:2px solid var(--accent-blue); outline-offset:-2px; }
+  .seg.col { display:flex; flex-direction:column; }
+  .seg.col span { border-right:none; border-bottom:1px solid var(--border); }
+  .seg.col label:last-child span { border-bottom:none; }
+  .seg.col small { display:block; font-weight:400; font-size:11.5px; opacity:.8; }
+  .chk { display:flex; align-items:flex-start; gap:9px; padding:6px 0; font-size:14px; line-height:1.45; border-bottom:1px dashed var(--border); cursor:pointer; }
+  .chk:last-child { border-bottom:none; }
+  .chk input { margin-top:3px; width:17px; height:17px; flex:0 0 auto; accent-color:var(--accent-blue); }
+  .chk small { display:block; color:var(--text-muted); font-size:12px; }
+  .chk .tx { flex:1 1 auto; min-width:0; }
+  .chk.on .tx { color:var(--text-primary); font-weight:500; }
+  .chk.conf { margin-top:6px; border-top:1px solid var(--border-strong); padding-top:9px; }
+  .peso { font-family:var(--mono); font-size:11px; color:var(--text-muted); }
+  .peso .ne { color:var(--accent-amber); font-weight:600; }
+  .grp { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); margin:10px 0 2px; }
+  .grp:first-child { margin-top:0; }
+  .riga { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:6px 0; border-bottom:1px dashed var(--border); }
+  .riga:last-child { border-bottom:none; }
+  .riga .fl { min-width:0; flex:1 1 180px; }
+  .hide { display:none !important; }
+  .esito { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-bottom:4px; }
+  .cat { display:inline-block; font-size:12.5px; font-weight:600; border-radius:99px; padding:2px 10px; border:1px solid; }
+  .k0 { color:var(--k0); background:var(--k0-bg); border-color:var(--k0-bd); }
+  .k1 { color:var(--k1); background:var(--k1-bg); border-color:var(--k1-bd); }
+  .k2 { color:var(--k2); background:var(--k2-bg); border-color:var(--k2-bd); }
+  .k3 { color:var(--k3); background:var(--k3-bg); border-color:var(--k3-bd); }
+  .k4 { color:var(--k4); background:var(--k4-bg); border-color:var(--k4-bd); }
+  .kx { color:var(--text-muted); background:var(--surface-alt); border-color:var(--border-strong); }
+  .big { font-family:var(--display); font-size:24px; font-weight:700; line-height:1.15; }
+  .cor { display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600; color:#FFFFFF; border-radius:4px; padding:0 5px; margin:0 1px; white-space:nowrap; vertical-align:1px; }
+  .c1 { background:var(--cor-1); } .c2a { background:var(--cor-2a); color:#1D1602; } .c2b { background:var(--cor-2b); } .c3 { background:var(--cor-3); }
+  .cf { background:var(--surface-alt); color:var(--text-secondary); border:1px dashed var(--border-strong); }
+  .pg { font-family:var(--mono); font-size:11px; color:var(--text-muted); }
+  .ao { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.03em; color:var(--accent-blue); background:var(--accent-blue-bg); border:1px solid var(--accent-blue-border); border-radius:4px; padding:0 5px; white-space:nowrap; vertical-align:1px; }
+  .nota { border-left:3px solid var(--accent-amber); background:var(--accent-amber-bg); border-radius:0 8px 8px 0; padding:7px 11px; margin-top:8px; font-size:13.5px; }
+  .nota.info { border-left-color:var(--accent-blue); background:var(--accent-blue-bg); }
+  .nota.stop { border-left-color:var(--accent-red); background:var(--accent-red-bg); }
+  .nota.ok { border-left-color:var(--accent-green); background:var(--accent-green-bg); }
+  .nota.spenta { border-left-color:var(--border-strong); background:var(--surface-alt); color:var(--text-secondary); }
+  .nota strong { color:var(--text-primary); }
+  .ed { border:1px solid var(--border-strong); border-radius:10px; padding:10px 12px; margin-top:10px; }
+  .ed.prev { border-color:var(--accent-blue-border); background:var(--accent-blue-bg); }
+  .ed .edt { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px; }
+  .ed.prev .edt { color:var(--accent-blue); }
+  .ed .tx { font-size:13.5px; overflow-wrap:anywhere; }
+  .conta { font-size:13.5px; margin-top:6px; }
+  .conta li { margin:2px 0 2px 18px; }
+  .passo { display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border); }
+  .passo:last-child { border-bottom:none; }
+  .passo .ico { flex:0 0 26px; font-weight:700; text-align:center; font-family:var(--mono); font-size:13px; padding-top:1px; }
+  .passo .tx { flex:1 1 auto; font-size:14px; min-width:0; overflow-wrap:anywhere; }
+  .passo.att { background:var(--accent-blue-bg); border-radius:8px; border-bottom-color:transparent; padding:8px 8px; margin:2px -8px; }
+  .passo.att .ico { color:var(--accent-blue); }
+  .lista li { margin:4px 0 4px 18px; font-size:13.5px; }
+  .vv { font-family:var(--mono); font-size:12px; color:var(--text-muted); }
+  .foot { margin-top:2.4rem; padding-top:1rem; border-top:1px solid var(--border-strong); font-size:12px; color:var(--text-muted); line-height:1.7; }
+  .foot strong { color:var(--text-secondary); }
+  @media (max-width:640px) {
+    .page { overflow-wrap:anywhere; }
+    .headline { font-size:25px; }
+    .stage-w { display:none; }
+    .fl { min-width:0; width:100%; }
+    .big { font-size:21px; }
+  }
+  @media print { .bar { position:static; } }
+</style>
+<style data-iphone="stile">
+/* L'avviso e' visibile per costruzione: lo nasconde solo la classe che la
+   sentinella mette quando JavaScript esiste, e lo rimostra quando il motore
+   muore. Nell'anteprima dell'iPhone nessuna delle due arriva. */
+#nomotore{background:#FCEBEB;border:1.5px solid #A32D2D;border-radius:10px;
+ padding:12px 15px;margin:0 0 1.1rem;font-size:13.5px;line-height:1.6;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+#nomotore strong{display:block;color:#A32D2D;font-size:15px;margin-bottom:4px}
+#nomotore p{margin:6px 0 0}
+#nomotore a{color:#A32D2D}
+#nomotore .nmurl{font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:.92em;word-break:break-all}
+#nomotore .nmerr{display:block;font-family:'SFMono-Regular',Consolas,Menlo,monospace;
+ font-size:11.5px;color:#A32D2D;margin-top:6px;word-break:break-word}
+#nomotore .nmerr:empty{display:none}
+html.js #nomotore{display:none}
+html.js.motore-ko #nomotore{display:block}
+
+#nmprivacy{background:#E2F4F5;border:1px solid #A7DBDE;border-radius:8px;padding:9px 13px;
+ margin:0 0 1rem;font-size:12.5px;line-height:1.55;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+@media print{#nmprivacy{display:none}}
+</style>
+</head>
+<body>
+<div class="nomotore" id="nomotore" role="alert">
+ <strong>Motore di calcolo non attivo</strong>
+ <p>I calcoli, i filtri e i comandi di questa pagina <b>non funzionano</b>: dove leggi «—» non c'è un
+ valore. Il testo resta leggibile, i numeri che dipendono dai tuoi dati no. Non usare questa pagina
+ per decidere una dose.</p>
+ <p>Su iPhone e iPad succede sempre con un file salvato sul telefono: si apre nell'<b>anteprima</b> —
+ dall'app File, da Mail, da WhatsApp —, che mostra la pagina ma non esegue il motore, e Apple non
+ permette di aprirlo in Safari. Sull'iPhone il tool funziona aperto da questo indirizzo, in Safari: <a class="nmurl" href="https://francescofugetto-ai.github.io/tool-infezione-cied-web/">https://francescofugetto-ai.github.io/tool-infezione-cied-web/</a> — poi Condividi, «Aggiungi alla schermata Home». Dopo la prima apertura funziona anche senza rete. Su computer e Android basta aprire il file.</p>
+ <span class="nmerr" id="nmerr"></span>
+</div>
+<div class="nmprivacy" id="nmprivacy">
+ <b>Quello che scrivi resta su questo dispositivo.</b> La pagina non invia niente in rete e non
+ salva niente: nessun dato esce da qui. Per la stessa ragione, <b>chiudendola il contenuto si
+ perde</b> — copia il referto dove ti serve prima di chiudere.
+</div>
+<div class="page">
+<header class="hero">
+  <div class="kicker">Strumento · Endocardite infettiva · ESC 2023 · dispositivi impiantabili</div>
+  <h1 class="headline">Infezione del CIED — estrazione, durata della terapia, reimpianto</h1>
+  <p class="lede"><strong>Come si usa.</strong> Lo strumento percorre la <strong>Fig. 13</strong> della ESC 2023 con le classi della <strong>Recommendation Table 20</strong>. Il passo 1 parte dalla classificazione ESC 2023 dell'endocardite su dispositivo — definita, possibile o respinta —, che si conta con il <strong>Tool Criteri EI</strong> (Fig. 7). Nell'EI possibile il passo 2 segue gli esami ripetuti e la batteriemia senza altri criteri; nella definita il passo 3 chiede se il dispositivo è coinvolto con certezza. Poi l'<strong>estrazione</strong> e la sua classe, la <strong>durata</strong> dell'antibiotico dopo l'estrazione (2, 4 o 6 settimane) e la <strong>finestra del reimpianto</strong> (72 ore o 2 settimane di emocolture negative), con i ponti. Farmaci e dosi sono nel Tool Antibiotici EI: <strong>qui nessuna dose</strong>. <strong>Azzera</strong>, in alto, ricomincia.</p>
+  <div class="meta-row">
+    <span class="meta-chip"><strong>Fonte</strong> 2023 ESC Guidelines for the management of endocarditis</span>
+    <span class="meta-chip"><strong>Percorso</strong> Fig. 13, p. 4003 · Rec. Table 20, pp. 4004–4005 · § 12.4, pp. 4002–4004 · Fig. 7, p. 3974</span>
+    <span class="meta-chip"><strong>Acquisito online</strong> solo per il fungo: IDSA 2016, EHRA 2020, AHA 2024 (cercati il 24/10/2026)</span>
+  </div>
+</header>
+
+<div class="bar" id="bar" aria-live="polite">
+  <span class="lbl">Estrazione</span> <span id="barEstr" class="cat kx">—</span>
+  <span class="lbl">Durata</span> <span id="barDur" class="cat kx">—</span>
+  <span class="lbl">Reimpianto</span> <span id="barReimp" class="cat kx">—</span>
+  <span class="sp"></span>
+  <button class="btn" id="azzera" type="button">Azzera</button>
+</div>
+
+<div class="stage"><span class="stage-n">1</span><span class="stage-t">La diagnosi</span><span class="stage-w">Fig. 13, p. 4003 · Fig. 7, p. 3974 · Tab. 10, p. 3971</span></div>
+<div class="card">
+  <div class="riga"><span class="fl">Classificazione ESC 2023<small>criteri della Tab. 10 con l'algoritmo della Fig. 7: si contano con il Tool Criteri EI</small></span>
+    <span class="seg">
+      <label><input type="radio" name="diag" value="definita"><span>definita</span></label>
+      <label><input type="radio" name="diag" value="possibile"><span>possibile</span></label>
+      <label><input type="radio" name="diag" value="respinta"><span>respinta</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Segni d'infezione della tasca<small>gonfiore, dolore, eritema, secrezione purulenta · possono mancare (p. 4002)</small></span>
+    <span class="seg">
+      <label><input type="radio" name="tasca" value="si"><span>sì</span></label>
+      <label><input type="radio" name="tasca" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">TOE</span>
+    <span class="seg">
+      <label><input type="radio" name="toe" value="veg"><span>vegetazioni</span></label>
+      <label><input type="radio" name="toe" value="neg"><span>negativa</span></label>
+      <label><input type="radio" name="toe" value="no"><span>non ancora fatta</span></label>
+    </span></div>
+</div>
+<div class="card" id="outInizio"></div>
+
+<div class="stage" id="stage2"><span class="stage-n">2</span><span class="stage-t">EI possibile: esami ripetuti e batteriemia</span><span class="stage-w">Fig. 13 · Rec. Table 20, p. 4005</span></div>
+<div class="card" id="card2">
+  <div class="riga"><span class="fl">Esami ripetuti entro 7 giorni</span>
+    <span class="seg col">
+      <label><input type="radio" name="rip" value="attesa"><span>non ancora</span></label>
+      <label><input type="radio" name="rip" value="definita"><span>EI definita</span></label>
+      <label><input type="radio" name="rip" value="nessuna"><span>nessuna EI</span></label>
+      <label><input type="radio" name="rip" value="batt"><span>batteriemia o fungemia senza altri criteri maggiori né altra fonte d'infezione</span></label>
+    </span></div>
+  <div id="bloccoBatt">
+    <label class="chk"><input type="checkbox" id="unaSola"><span class="tx">Una sola emocoltura positiva, senza nessun altro segno clinico d'infezione</span></label>
+    <div class="riga"><span class="fl">Germe</span>
+      <span class="seg">
+        <label><input type="radio" name="gram" value="pos"><span>Gram-positivo</span></label>
+        <label><input type="radio" name="gram" value="fungo"><span>fungo</span></label>
+        <label><input type="radio" name="gram" value="neg"><span>Gram-negativo</span></label>
+      </span></div>
+    <div class="riga"><span class="fl">Dopo un ciclo di terapia antimicrobica</span>
+      <span class="seg">
+        <label><input type="radio" name="ciclo" value="corso"><span>in corso</span></label>
+        <label><input type="radio" name="ciclo" value="guarita"><span>guarita</span></label>
+        <label><input type="radio" name="ciclo" value="pers"><span>persiste o recidiva</span></label>
+      </span></div>
+  </div>
+</div>
+
+<div class="stage" id="stage3"><span class="stage-n">3</span><span class="stage-t">EI definita: il dispositivo è coinvolto?</span><span class="stage-w">Fig. 13 · Rec. Table 20, pp. 4004–4005</span></div>
+<div class="card" id="card3">
+  <div class="riga"><span class="fl">Coinvolgimento</span>
+    <span class="seg col">
+      <label><input type="radio" name="coinv" value="certo"><span>coinvolgimento certo del CIED<small>vegetazioni sugli elettrocateteri, infezione della tasca, PET positiva su generatore o elettrocateteri</small></span></label>
+      <label><input type="radio" name="coinv" value="valv"><span>EI valvolare isolata probabile<small>senza coinvolgimento certo dell'elettrocatetere</small></span></label>
+    </span></div>
+</div>
+<div class="card" id="outEstr"></div>
+
+<div class="stage" id="stage4"><span class="stage-n">4</span><span class="stage-t">Come si estrae, e il ponte</span><span class="stage-w">§ 12.4.7–12.4.8, p. 4004</span></div>
+<div class="card" id="card4">
+  <div class="riga"><span class="fl">Vegetazione più grande sull'elettrocatetere<small>mm · vuoto se non ce ne sono o non è misurata</small></span><input type="number" id="vegMm" min="1" max="80" step="1" inputmode="numeric" placeholder="mm"><span class="vv" id="vVeg">—</span></div>
+  <div class="riga"><span class="fl">Chirurgia valvolare indicata</span>
+    <span class="seg">
+      <label><input type="radio" name="chirV" value="si"><span>sì</span></label>
+      <label><input type="radio" name="chirV" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Dipendente dalla stimolazione</span>
+    <span class="seg">
+      <label><input type="radio" name="pmDip" value="si"><span>sì</span></label>
+      <label><input type="radio" name="pmDip" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Alto rischio di morte improvvisa</span>
+    <span class="seg">
+      <label><input type="radio" name="scd" value="si"><span>sì</span></label>
+      <label><input type="radio" name="scd" value="no"><span>no</span></label>
+    </span></div>
+  <label class="chk"><input type="checkbox" id="nonPoss"><span class="tx">La rimozione completa del sistema non si può fare<small>casi eccezionali (p. 4004)</small></span></label>
+</div>
+<div class="card" id="outCome"></div>
+
+<div class="stage" id="stage5"><span class="stage-n">5</span><span class="stage-t">Quanto antibiotico dopo l'estrazione</span><span class="stage-w">Fig. 13 · Rec. Table 20, p. 4005</span></div>
+<div class="card" id="card5">
+  <div class="riga"><span class="fl">Germe<small>con un fungo la durata la decide lo specialista</small></span>
+    <span class="seg">
+      <label><input type="radio" name="saur" value="si"><span>S. aureus</span></label>
+      <label><input type="radio" name="saur" value="fungo"><span>fungo</span></label>
+      <label><input type="radio" name="saur" value="no"><span>altro batterio</span></label>
+    </span><span class="vv" id="vSaur">—</span></div>
+  <div class="riga"><span class="fl">Vegetazioni sugli elettrocateteri</span>
+    <span class="seg">
+      <label><input type="radio" name="vegL" value="si"><span>sì</span></label>
+      <label><input type="radio" name="vegL" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga" id="rigaValv"><span class="fl">Coinvolgimento valvolare</span>
+    <span class="seg">
+      <label><input type="radio" name="valv" value="si"><span>sì</span></label>
+      <label><input type="radio" name="valv" value="no"><span>no</span></label>
+    </span><span class="vv" id="vValv">—</span></div>
+  <div class="riga"><span class="fl">Emboli settici</span>
+    <span class="seg">
+      <label><input type="radio" name="emb" value="si"><span>sì</span></label>
+      <label><input type="radio" name="emb" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Protesi valvolare</span>
+    <span class="seg">
+      <label><input type="radio" name="protV" value="si"><span>sì</span></label>
+      <label><input type="radio" name="protV" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Emocolture di controllo dopo l'estrazione</span>
+    <span class="seg">
+      <label><input type="radio" name="ctr" value="neg"><span>negative</span></label>
+      <label><input type="radio" name="ctr" value="pos"><span>positive</span></label>
+      <label><input type="radio" name="ctr" value="attesa"><span>non ancora</span></label>
+    </span></div>
+</div>
+<div class="card" id="outDur"></div>
+
+<div class="stage" id="stage6"><span class="stage-n">6</span><span class="stage-t">Quando si reimpianta</span><span class="stage-w">Rec. Table 20, p. 4004 · Fig. 13, nota c · § 12.4.8</span></div>
+<div class="card" id="card6">
+  <div class="riga"><span class="fl">Indicazione a un nuovo dispositivo<small>si rivaluta sempre (p. 4004)</small></span>
+    <span class="seg">
+      <label><input type="radio" name="indic" value="si"><span>confermata</span></label>
+      <label><input type="radio" name="indic" value="no"><span>non c'è più</span></label>
+      <label><input type="radio" name="indic" value="riv"><span>da rivalutare</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Ghost dopo l'estrazione<small>residuo fibroso in vena, associato a morte e reinfezione</small></span>
+    <span class="seg">
+      <label><input type="radio" name="ghost" value="si"><span>sì</span></label>
+      <label><input type="radio" name="ghost" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Segni e sintomi d'infezione, locale e sistemica</span>
+    <span class="seg">
+      <label><input type="radio" name="spenti" value="si"><span>risolti</span></label>
+      <label><input type="radio" name="spenti" value="no"><span>ancora presenti</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Emocolture negative da<small>giorni dopo l'estrazione · 72 h = 3 giorni</small></span><input type="number" id="giorni" min="0" max="120" step="0.5" inputmode="decimal" placeholder="giorni"><span class="vv" id="vGiorni">—</span></div>
+</div>
+<div class="card" id="outReimp"></div>
+
+<div class="card"><h3>Incoerenze e ambiguità della fonte</h3><div id="outInc"></div></div>
+<div class="card"><h3>Limiti per questo paziente</h3><ul class="lista" id="limiti"></ul></div>
+
+<div class="foot">
+  <strong>Fonte.</strong> Delgado V, Ajmone Marsan N, de Waha S, et al. 2023 ESC Guidelines for the management of endocarditis. <em>Eur Heart J</em> 2023;44:3948–4042, doi:10.1093/eurheartj/ehad193 — infezione dei dispositivi (§ 12.4, pp. 4002–4004), Fig. 13 (p. 4003), Rec. Table 20 (pp. 4004–4005), Fig. 7 (p. 3974), Rec. Table 5 (p. 3969) e Rec. Table 6 (p. 3970), novità e revisioni (Tab. 3, p. 3957; Tab. 4, p. 3959), messaggi chiave e lacune (pp. 4013–4014). Ogni classe mostrata porta la pagina.<br><br>
+  <strong>Acquisito online</strong> — una provenienza a parte, distinta dalla fonte, dalle schede tecniche e dalle letture dello strumento: documenti ufficiali cercati in rete il 24/10/2026 su richiesta del medico, solo per il fungo, e segnati «acquisito online» dove compaiono; nessuna dose viene da lì. Pappas PG, Kauffman CA, Andes DR, et al. Clinical practice guideline for the management of candidiasis: 2016 update by the Infectious Diseases Society of America. <em>Clin Infect Dis</em> 2016;62:e1–e50, doi:10.1093/cid/civ933, PMID 26679628 — infezione dei dispositivi cardiaci impiantabili, raccomandazioni 65–69. Blomström-Lundqvist C, Traykov V, Erba PA, et al. EHRA international consensus document on how to prevent, diagnose, and treat cardiac implantable electronic device infections. <em>Europace</em> 2020;22:515–549, doi:10.1093/europace/euz246, PMID 31702000 — Tab. 8 e 9, terapia soppressiva a lungo termine. Baddour LM, Esquer Garrigos Z, Rizwan Sohail M, et al. Update on cardiovascular implantable electronic device infections and their prevention, diagnosis, and management: a scientific statement from the AHA. <em>Circulation</em> 2024;149:e201–e216, doi:10.1161/CIR.0000000000001187, PMID 38047353 — pazienti che tengono il dispositivo infetto. Lo statement AHA 2010 (Baddour LM, et al. <em>Circulation</em> 2010;121:458–477, PMID 20048212) non è stato letto: il testo integrale non era accessibile.<br><br>
+  Strumento personale di studio e consultazione: <strong>non sostituisce il giudizio clinico, l'Endocarditis Team né il centro che estrae</strong>; il rischio dell'estrazione si pesa con il paziente. Non calcola dosi: la terapia è nel Tool Antibiotici EI. Non salva i dati e non li invia in rete.
+</div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  /* ═══ DATI ═══════════════════════════════════════════════════════════════
+     2023 ESC Guidelines for the management of endocarditis (Delgado 2023).
+     Fig. 13, p. 4003 (letta sull'immagine, connettore per connettore,
+       10/10/2026): sospetto -> emocolture, TTE e TOE (o eco intracardiaca),
+       PET/TC con FDG (o SPECT/TC con leucociti) [nota a: senza segni di tasca e
+       con TOE negativa] «Class I» -> criteri ESC 2023: nessuna EI / EI
+       possibile / EI definita. Possibile -> esami ripetuti entro 7 giorni ->
+       nessuna EI, EI definita, o batteriemia/fungemia senza altri criteri
+       maggiori ne' fonte -> terapia antimicrobica -> guarita, o persistente/
+       recidivante -> Gram-negativo «IIb» / Gram-positivo o fungemia «IIa»
+       all'estrazione. Definita -> antibiotico contro MRSA e Gram-negativi
+       «Class I» -> EI valvolare isolata probabile [nota b: germe, rischio
+       procedurale, chirurgia valvolare] «IIa» / coinvolgimento certo del CIED
+       «I». Estrazione -> niente vegetazioni e non S. aureus: 2 settimane
+       «IIb»; vegetazioni e/o S. aureus: 4 settimane «IIa»; emboli settici o
+       protesi valvolare: 6 settimane «IIa» -> reimpianto [nota c: in sede
+       lontana e il piu' tardi possibile, a segni e sintomi risolti e con
+       emocolture negative da >72 h senza vegetazioni e/o ghost, altrimenti
+       dopo >2 settimane di emocolture negative] «Class I».
+     Rec. Table 20, pp. 4004-4005 — I A profilassi contro S. aureus
+       all'impianto; I B TTE e TOE nel sospetto; I B estrazione completa senza
+       ritardo nella definita, sotto la terapia empirica; I C >=3 set di
+       emocolture prima dell'empirica contro stafilococchi meticillino-
+       resistenti e Gram-negativi; I C reimpianto lontano, il piu' tardi
+       possibile, a segni e sintomi spenti, emocolture negative da almeno 72 h
+       senza vegetazioni, da almeno 2 settimane con vegetazioni viste; IIa C
+       estrazione nella EI valvolare senza coinvolgimento certo, pesando germe
+       e chirurgia valvolare; IIa C rimozione nella possibile con batteriemia
+       occulta da Gram-positivi o fungemia persistente dopo un ciclo; IIa C
+       (4-6) settimane con emboli settici o protesi valvolare; IIb B busta
+       antibiotica al reimpianto nei pazienti selezionati ad alto rischio; IIb C
+       rimozione nella possibile con batteriemia occulta da Gram-negativi
+       persistente o recidivante; IIb C 2 settimane nella EI non da S. aureus
+       senza coinvolgimento valvolare ne' vegetazioni sugli elettrocateteri,
+       con emocolture di controllo negative e senza emboli settici; III C
+       rimozione dopo una sola emocoltura positiva senza altri segni.
+     § 12.4, pp. 4002-4004 — definizioni EHRA; S. aureus sospetto alto,
+       Gram-negativi piu' bassi e di solito con segni di tasca (p. 4002);
+       eco intracardiaca; vegetazioni assenti non escludono; ripetere entro
+       5-7 giorni; masse fibrinose nei portatori senza sintomi; PET utile nella
+       possibile senza segni di tasca, cautela sotto 6 settimane
+       dall'impianto; radiografia o TC del torace in tutti; empirica contro
+       MRSA e Gram-negativi; rimozione impossibile: 4-6 settimane e.v. poi
+       follow-up, o soppressiva orale; estrazione in centri esperti, completa
+       in ogni infezione accertata degli elettrocateteri; protesi sinistra:
+       (4-)6 settimane; rischio procedurale (anni degli elettrocateteri,
+       dipendenza, fragilita', comorbidita'); senza ritardo = primi giorni;
+       percutanea preferita con cardiochirurgia in sede; vegetazioni grandi
+       (per esempio >20 mm): aspirazione prima, chirurgica se non c'e' o non
+       riesce, e se serve la chirurgia valvolare; coltura della punta e
+       sonicazione; reimpianto: indicazione sempre rivalutata, nessun pezzo
+       riusato, prove scarse sui tempi, 72 h senza vegetazioni o ghost, 2
+       settimane con vegetazioni; ponti: WCD con alto rischio di morte
+       improvvisa, elettrocatetere a fissazione attiva dalla giugulare interna
+       con pacemaker esterno fino a 4-6 settimane, oppure pacemaker epicardico
+       prima dell'estrazione (piu' reinterventi); leadless o S-ICD nei
+       pazienti selezionati ad alto rischio di nuova infezione.
+     Tab. 3, p. 3957: «(4-)6 weeks». Tab. 4, p. 3959: «possible CIED-related IE
+       or occult Gram-positive bacteraemia». p. 4013: ponte «up to 6 weeks».
+     p. 4014: mancano dati randomizzati sui tempi del reimpianto e sulla
+       rimozione di routine nella EI sinistra.
+     Fig. 7, p. 3974 e Rec. Table 5, p. 3969: TTE/TOE ripetute entro 5-7 giorni
+       (I C). Rec. Table 6, p. 3970: PET/TC(A) nella EI possibile su CIED IIb B.
+     Decisione del medico, 23/10/2026 (D11): con una fungemia nessuna durata
+       dopo l'estrazione, decide lo specialista (la riga delle 2 settimane dice
+       «non S. aureus» e non distingue i funghi). Letture dello strumento
+       approvate (23/10/2026): «una sola emocoltura positiva» insieme a una
+       batteriemia che persiste o recidiva = dati in contraddizione, nessuna
+       risposta; il passaggio alla via orale (suppl. Tab. S8, p. 11, colonna
+       CIED) e' nel Tool Via orale EI, nominato e non linkato.
+     Decisione del medico, 24/10/2026 (D21): fungo e rimozione completa
+       impossibile -> cercare il dato in rete, in fonti ufficiali; se c'e', con
+       la fonte accanto e il tag «acquisito online» (provenienza distinta da
+       fonte, scheda tecnica e lettura dello strumento); se no, nessuna durata.
+     ACQUISITO ONLINE (24/10/2026; nessuna dose presa da qui):
+       Pappas PG et al. IDSA 2016, candidosi. Clin Infect Dis 2016;62:e1-e50,
+         PMID 26679628, sezione «Candida Infection of Implantable Cardiac
+         Devices»: rac. 65 rimuovere tutto il dispositivo (pacemaker, ICD);
+         rac. 67 tasca: 4 settimane dopo la rimozione; rac. 68 elettrocateteri:
+         almeno 6 settimane dopo la loro rimozione (forte, evidenza bassa);
+         rac. 69 soppressiva cronica con fluconazolo solo per i dispositivi di
+         assistenza ventricolare che non si possono rimuovere (non CIED);
+         testo: la sola terapia medica e' fallita. Per il CIED che resta in
+         sede: nessuna durata, nessuna soppressiva.
+       Blomstrom-Lundqvist C et al. EHRA 2020. Europace 2020;22:515-549, PMID
+         31702000: Tab. 8, rimozione completa indicata nella fungemia da
+         Candida; Tab. 9 e testo, rimozione impossibile: e.v. come nella PVE
+         per 4-6 settimane, poi stop o soppressiva orale individualizzata,
+         senza distinguere il germe (opzioni solo antibiotiche).
+       Baddour LM et al. AHA 2024 (update del 2010). Circulation
+         2024;149:e201-e216, PMID 38047353, «Approach to Patients With
+         Retention of an Infected CIED»: e.v. iniziale, poi soppressiva orale
+         a vita; nessun dato per i funghi.
+       AHA 2010 (PMID 20048212): testo integrale non accessibile, non letto.
+       Esito: per il fungo con il CIED in sede nessuna fonte da' una durata
+       ne' una soppressiva -> nessuna durata, decide lo specialista. Dopo la
+       rimozione si riporta la rac. 68 (elettrocateteri), accanto a D11 e senza
+       farne la durata dello strumento: vale per Candida, che il tool non
+       chiede; la tasca da sola il tool non la tratta. */
+  var SOGLIA = { breve:3, lunga:14 };   // giorni di emocolture negative: 72 h e 2 settimane (Rec. Table 20, p. 4004; Fig. 13, nota c)
+  var VEG_GRANDE = 20;                   // mm: «e.g. >20 mm», p. 4004 — un esempio della fonte, non un taglio validato
+  var DOM = { vegMm:[1, 80], giorni:[0, 120] };   // limiti di plausibilita' dello strumento, non della fonte
+
+  /* ═══ FUNZIONI PURE ═══════════════════════════════════════════════════ */
+  function inScala(v, k) { return v !== null && v !== undefined && !isNaN(v) && v >= DOM[k][0] && v <= DOM[k][1]; }
+  // la strada della Fig. 13 fino all'estrazione, con la classe della Rec. Table 20
+  function estrazione(s) {
+    if (!s.diag) return { esito:null, perche:"serve la classificazione ESC 2023 (passo 1)" };
+    if (s.diag === "respinta") return { esito:"noie", ramo:"nessuna EI" };
+    if (s.diag === "possibile" && s.rip !== "definita") {
+      if (!s.rip || s.rip === "attesa") return { esito:"attesa", ramo:"EI possibile: esami ripetuti entro 7 giorni" };
+      if (s.rip === "nessuna") return { esito:"noie", ramo:"EI possibile, poi nessuna EI agli esami ripetuti" };
+      // lettura dello strumento (approvata il 23/10/2026): una batteriemia che persiste vuol dire emocolture positive ripetute
+      if (s.unaSola && s.ciclo === "pers") return { esito:null, contra:true, perche:"dati in contraddizione: «una sola emocoltura positiva» e una batteriemia che «persiste o recidiva» non stanno insieme — correggi uno dei due (passo 2)", ramo:"batteriemia o fungemia senza altri criteri" };
+      if (s.unaSola) return { esito:"III", c:"III", l:"C", ramo:"una sola emocoltura positiva, senza altri segni d'infezione" };
+      if (!s.ciclo || s.ciclo === "corso") return { esito:"terapia", ramo:"batteriemia o fungemia senza altri criteri: terapia antimicrobica in corso" };
+      if (s.ciclo === "guarita") return { esito:"guarita", ramo:"batteriemia o fungemia senza altri criteri, guarita con la terapia" };
+      if (!s.gram) return { esito:null, perche:"serve il germe della batteriemia (passo 2)", ramo:"batteriemia o fungemia persistente o recidivante" };
+      if (s.gram === "neg") return { esito:"estrai", c:"IIb", l:"C", ramo:"batteriemia occulta da Gram-negativi, persistente o recidivante", occulta:true };
+      return { esito:"estrai", c:"IIa", l:"C", ramo:(s.gram === "fungo" ? "fungemia occulta" : "batteriemia occulta da Gram-positivi") + ", persistente o recidivante", occulta:true };
+    }
+    if (!s.coinv) return { esito:null, perche:"serve sapere se il dispositivo è coinvolto con certezza (passo 3)", ramo:"EI definita", def:true };
+    if (s.coinv === "certo") return { esito:"estrai", c:"I", l:"B", ramo:"EI definita, CIED coinvolto con certezza", def:true };
+    return { esito:"estrai", c:"IIa", l:"C", ramo:"EI definita, valvolare isolata probabile", def:true, valv:true };
+  }
+  function valvolare(s, e) { if (e.valv || s.valv === "si") return true; if (s.valv === "no") return false; return null; }
+  // durata dopo l'estrazione: Fig. 13 e Rec. Table 20, p. 4005
+  function durata(s, e) {
+    var v;
+    if (e.esito !== "estrai") return { sett:null, na:true, perche:"la durata dopo l'estrazione vale quando si estrae" };
+    if (s.fungo && s.nonPoss) return { sett:null, fungo:true, senza:true, perche:"fungo e rimozione completa impossibile: nessuna durata, decide lo specialista (decisione del medico, 24/10/2026)" };   // D21
+    if (s.fungo) return { sett:null, fungo:true, perche:"fungemia: nessuna durata dallo strumento, decide lo specialista (decisione del medico, 23/10/2026)" };   // D11
+    if (s.nonPoss) return { sett:"senza", perche:"" };
+    if (s.emb === "si" || s.protV === "si") return { sett:6, c:"IIa", l:"C", motivo:(s.emb === "si" ? "emboli settici" : "") + (s.emb === "si" && s.protV === "si" ? " e " : "") + (s.protV === "si" ? "protesi valvolare" : "") };
+    if (!s.emb || !s.protV) return { sett:null, perche:"servono emboli settici e protesi valvolare (passo 5)" };
+    v = valvolare(s, e);
+    if (v === null) return { sett:null, perche:"serve il coinvolgimento valvolare (passo 5)" };
+    if (v) return { sett:"valv" };
+    if (!s.saur || !s.vegL) return { sett:null, perche:"servono il germe e le vegetazioni sugli elettrocateteri (passo 5)" };
+    if (s.saur === "si" || s.vegL === "si") return { sett:4, motivo:(s.saur === "si" ? "S. aureus" : "") + (s.saur === "si" && s.vegL === "si" ? " e " : "") + (s.vegL === "si" ? "vegetazioni sugli elettrocateteri" : "") };
+    if (!s.ctr || s.ctr === "attesa") return { sett:null, candidato:2, perche:"le 2 settimane valgono con emocolture di controllo negative: serve il loro esito (passo 5)" };
+    if (s.ctr === "pos") return { sett:null, pos:true, perche:"con emocolture di controllo positive la riga delle 2 settimane non vale, e la fonte non dà un'altra durata" };
+    return { sett:2, c:"IIb", l:"C" };
+  }
+  // finestra del reimpianto: Rec. Table 20, p. 4004; Fig. 13, nota c; testo p. 4004
+  function reimpianto(s, e) {
+    var veg, soglia;
+    if (e.esito !== "estrai") return { stato:null, na:true, perche:"il reimpianto viene dopo un'estrazione" };
+    if (s.nonPoss) return { stato:"senza", perche:"senza rimozione completa non si parla di reimpianto" };
+    if (!s.indic) return { stato:null, perche:"serve l'indicazione a un nuovo dispositivo (passo 6)" };
+    if (s.indic === "no") return { stato:"no" };
+    if (s.indic === "riv") return { stato:"riv" };
+    veg = s.vegL === "si" || s.vegMm !== null || valvolare(s, e) === true;
+    if (!veg && s.vegL !== "no") return { stato:null, perche:"servono le vegetazioni sugli elettrocateteri (passo 5)" };
+    if (!veg && !s.ghost) return { stato:null, perche:"serve sapere se dopo l'estrazione ci sono ghost (passo 6)" };
+    soglia = veg || s.ghost === "si" ? SOGLIA.lunga : SOGLIA.breve;
+    if (!s.spenti) return { stato:null, soglia:soglia, veg:veg, perche:"serve sapere se segni e sintomi d'infezione sono risolti (passo 6)" };
+    if (s.spenti === "no") return { stato:"attesa", soglia:soglia, veg:veg, motivo:"segni o sintomi d'infezione ancora presenti" };
+    if (s.giorni === null) return { stato:null, soglia:soglia, veg:veg, perche:"servono i giorni di emocolture negative (passo 6)" };
+    if (!inScala(s.giorni, "giorni")) return { stato:null, soglia:soglia, veg:veg, perche:"giorni fuori scala (0–120)" };
+    if (s.giorni > soglia) return { stato:"finestra", soglia:soglia, veg:veg };
+    if (s.giorni === soglia) return { stato:"confine", soglia:soglia, veg:veg };
+    return { stato:"attesa", soglia:soglia, veg:veg, mancano:soglia - s.giorni };
+  }
+
+  /* ═══ STATO E DISEGNO ═════════════════════════════════════════════════ */
+  function el(id) { return document.getElementById(id); }
+  function ckv(id) { var e = el(id); return !!(e && e.checked); }
+  function num(id) { var v = el(id).value; if (v === "") return null; var n = parseFloat(String(v).replace(",", ".")); return isNaN(n) ? null : n; }
+  function radio(n) { var e = document.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : ""; }
+  function pgs(p) { return ' <span class="pg">' + p + "</span>"; }
+  function corPill(c, l) { var k = { "I":"c1", "IIa":"c2a", "IIb":"c2b", "III":"c3" }[c]; return '<span class="cor ' + k + '">' + c + "</span>" + (l ? ' <span class="cor ' + k + '" style="opacity:.85">' + l + "</span>" : ""); }
+  function figCl(c) { return '<span class="cor cf">figura: Classe ' + c + "</span>"; }
+  // D21 (24/10/2026): provenienza «acquisito online», distinta da fonte,
+  // scheda tecnica e lettura dello strumento
+  function ao() { return ' <span class="ao">acquisito online</span>'; }
+  var IDSA = "Pappas 2016, IDSA, Clin Infect Dis 62:e1–e50, PMID 26679628", EHRA = "Blomström-Lundqvist 2020, EHRA, Europace 22:515–549, PMID 31702000",
+      AHA24 = "Baddour 2024, AHA, Circulation 149:e201–e216, PMID 38047353";
+  function nota(g, t) { return '<div class="nota ' + (g || "") + '">' + t + "</div>"; }
+  function chip(k, t) { return '<span class="cat ' + k + '">' + t + "</span>"; }
+  function passo(att, ico, t) { return '<div class="passo' + (att ? " att" : "") + '"><span class="ico">' + ico + '</span><span class="tx">' + t + "</span></div>"; }
+  function giorniTxt(g) { return String(g).replace(".", ","); }
+  var F13 = "ESC 2023, Fig. 13, p. 4003", R20a = "ESC 2023, Rec. Table 20, p. 4004", R20b = "ESC 2023, Rec. Table 20, p. 4005", P02 = "ESC 2023, p. 4002", P04 = "ESC 2023, p. 4004",
+      F7 = "ESC 2023, Fig. 7, p. 3974", R5 = "ESC 2023, Rec. Table 5, p. 3969", R6 = "ESC 2023, Rec. Table 6, p. 3970", T3 = "ESC 2023, Tab. 3, p. 3957", T4 = "ESC 2023, Tab. 4, p. 3959",
+      P13 = "ESC 2023, p. 4013", P14 = "ESC 2023, p. 4014";
+
+  function S() {
+    var s = { diag:radio("diag"), tasca:radio("tasca"), toe:radio("toe"), rip:radio("rip"), unaSola:ckv("unaSola"), gram:radio("gram"), ciclo:radio("ciclo"),
+              coinv:radio("coinv"), vegMm:num("vegMm"), chirV:radio("chirV"), pmDip:radio("pmDip"), scd:radio("scd"), nonPoss:ckv("nonPoss"),
+              saur:radio("saur"), vegL:radio("vegL"), valv:radio("valv"), emb:radio("emb"), protV:radio("protV"), ctr:radio("ctr"),
+              indic:radio("indic"), ghost:radio("ghost"), spenti:radio("spenti"), giorni:num("giorni") };
+    // le domande nascoste non contano: valgono solo sulla loro strada della Fig. 13
+    if (s.diag !== "possibile") s.rip = "";
+    if (s.rip !== "batt") { s.unaSola = false; s.gram = ""; s.ciclo = ""; }
+    // il fungo del passo 2 vale anche per la durata (D11, 23/10/2026)
+    s.fungoP2 = s.rip === "batt" && s.gram === "fungo";
+    s.fungo = s.saur === "fungo" || s.fungoP2;
+    if (s.fungo) s.saur = "fungo";
+    if (!(s.diag === "definita" || (s.diag === "possibile" && s.rip === "definita"))) s.coinv = "";
+    if (s.vegMm !== null && !inScala(s.vegMm, "vegMm")) s.vegFuori = true;
+    if (s.vegFuori) s.vegMm = null;
+    return s;
+  }
+
+  var EST = { I:["k4", "I B"], IIa:["k3", "IIa C"], IIb:["k2", "IIb C"] };
+
+  function disegna() {
+    var s = S(), e = estrazione(s), d = durata(s, e), r = reimpianto(s, e), i, h, estrai = e.esito === "estrai", defp = !!e.def, v = estrai ? valvolare(s, e) : null;
+    var chk = document.querySelectorAll(".chk");
+    for (i = 0; i < chk.length; i++) {
+      var inp = chk[i].querySelector("input"), on = !!(inp && inp.checked);
+      if (on && (" " + chk[i].className + " ").indexOf(" on ") < 0) chk[i].className += " on";
+      if (!on) chk[i].className = chk[i].className.replace(/(^|\s)on(\s|$)/g, " ").replace(/\s+$/, "");
+    }
+    function vis(id, si) { var x = el(id), c = x.className.replace(/(^|\s)hide(\s|$)/g, " ").replace(/\s+$/, "").replace(/^\s+/, ""); x.className = si ? c : c + " hide"; }
+    vis("stage2", s.diag === "possibile"); vis("card2", s.diag === "possibile");
+    vis("bloccoBatt", s.rip === "batt");
+    vis("stage3", defp); vis("card3", defp);
+    vis("stage4", estrai); vis("card4", estrai); vis("outCome", estrai);
+    vis("stage5", estrai); vis("card5", estrai); vis("outDur", estrai);
+    vis("stage6", estrai); vis("card6", estrai); vis("outReimp", estrai);
+    vis("rigaValv", !e.valv);
+    el("vValv").innerHTML = e.valv ? "sì (passo 3)" : "—";
+    el("vSaur").innerHTML = s.fungoP2 ? "fungo, dal passo 2" : "—";
+    el("vVeg").innerHTML = s.vegFuori ? "fuori scala (1–80)" : (s.vegMm === null ? "—" : (s.vegMm > VEG_GRANDE ? "grande: oltre 20 mm" : "fino a 20 mm"));
+    el("vGiorni").innerHTML = s.giorni === null ? "—" : (inScala(s.giorni, "giorni") ? "= " + giorniTxt(Math.round(s.giorni * 24)) + " h" : "fuori scala (0–120)");
+
+    /* (a) · l'inizio: il primo riquadro della Fig. 13 */
+    h = "<h3>Il sospetto — primo riquadro della Fig. 13</h3>";
+    h += passo(true, "1", "<b>Emocolture</b>: almeno tre set prima di avviare subito l'antibiotico empirico, che copra gli stafilococchi meticillino-resistenti e i Gram-negativi " + corPill("I", "C") + pgs(R20a) + ".");
+    h += passo(true, "2", "<b>TTE e TOE</b>, tutte e due, per cercare le vegetazioni " + corPill("I", "B") + pgs(R20a) + "; l'eco intracardiaca può mostrarle e serve quando la TOE non si può fare. Nessuna vegetazione non esclude: possono stare sui tratti extracardiaci dell'elettrocatetere" + pgs(P04) + "." + (s.toe === "neg" ? " <b>TOE negativa</b>: con sospetto alto si ripete entro 5–7 giorni" + pgs(P04 + "; " + R5) + "." : ""));
+    h += passo(s.tasca === "no" && s.toe === "neg", "3", "<b>PET/TC con FDG</b> (o SPECT/TC con leucociti) " + figCl("I") + " — la nota a la chiede senza segni di tasca e con TOE negativa" + pgs(F13) + "; la riga: per confermare l'EI possibile su CIED " + corPill("IIb", "B") + pgs(R6) + ". Cautela se il dispositivo ha meno di 6 settimane" + pgs(P04) + "." + (s.tasca === "no" && s.toe === "neg" ? " <b>Qui è il caso della nota a.</b>" : ""));
+    h += passo(false, "4", "Radiografia o TC del torace <b>in tutti</b>, per le complicanze polmonari, senza classe" + pgs(P04) + ". Le masse fibrinose sugli elettrocateteri si trovano anche in portatori senza sintomi e non predicono l'EI" + pgs(P04) + ".");
+    h += passo(false, "→", "La classificazione — definita, possibile, respinta — si conta con la Tab. 10 e l'algoritmo della Fig. 7: <b>Tool Criteri EI</b>" + pgs(F7) + ". Ai fini della diagnosi l'EI su CIED è un'EI destra" + pgs("ESC 2023, p. 3972") + ".");
+    if (s.diag === "respinta") h += nota("ok", "<b>Nessuna EI</b>: nella Fig. 13 il ramo si ferma" + pgs(F13) + ". Un'infezione della sola tasca, senza EI, è un'infezione localizzata del dispositivo secondo i criteri EHRA che la fonte riprende" + pgs(P02) + ": questo strumento non la tratta.");
+    if (defp) h += nota("info", "<b>EI definita</b>: antibiotico che copra <b>MRSA e Gram-negativi</b> " + figCl("I") + pgs(F13) + ", lo stesso della riga I C sull'empirica" + pgs(R20a) + "; poi il regime per il germe. Farmaci, dosi e rene: <b>Tool Antibiotici EI</b>; il passaggio alla via orale: <b>Tool Via orale EI</b>.");
+    if (s.diag === "possibile") h += nota("info", "<b>EI possibile</b>: si ripetono gli esami <b>entro 7 giorni</b>" + pgs(F13) + " (TTE e TOE entro 5–7 giorni " + corPill("I", "C") + pgs(R5) + "); la Fig. 7 aggiunge PET/TC(A) per la tasca e per gli elettrocateteri e TC del torace" + pgs(F7) + ": dettagli e classi nel Tool Criteri EI.");
+    el("outInizio").innerHTML = h;
+
+    /* (b) · l'estrazione */
+    h = "<h3>Estrarre il dispositivo? — Fig. 13 · Rec. Table 20</h3>";
+    if (e.esito === null) h += '<div class="esito">' + chip("kx", "—") + '<span class="muted">' + e.perche + "</span></div>";
+    if (e.ramo) h += '<div style="font-size:13.5px;margin:2px 0 6px"><b>Strada:</b> ' + e.ramo + "</div>";
+    if (e.contra) h += nota("stop", "<b>Dati in contraddizione.</b> Una batteriemia che persiste o recidiva dopo un ciclo di terapia vuol dire emocolture positive ripetute. Con <b>una sola emocoltura positiva</b>, senza altri segni, la riga dice di non rimuovere " + corPill("III", "C") + "; con la batteriemia occulta che persiste, la rimozione è da considerare " + corPill("IIa", "C") + " (Gram-positivi o funghi) o considerabile " + corPill("IIb", "C") + " (Gram-negativi)" + pgs(R20b) + ". Lo strumento non sceglie fra le due: correggi il dato sbagliato (lettura dello strumento).");
+    if (estrai) {
+      h += '<div class="esito"><span class="big">' + (e.c === "I" ? "Estrazione completa, senza ritardo" : (e.c === "IIa" ? "Estrazione completa da considerare" : "Estrazione completa considerabile")) + "</span>" + corPill(e.c, e.l) + "</div>";
+      if (e.c === "I") h += passo(true, "→", "Estrazione completa del sistema, <b>senza ritardo</b>, già sotto la terapia antibiotica empirica iniziale " + corPill("I", "B") + pgs(R20a) + ". Rimozione completa in ogni infezione accertata degli elettrocateteri: la terapia conservativa ha mortalità più alta" + pgs(P04) + ".");
+      if (e.valv) h += passo(true, "→", "EI valvolare anche senza coinvolgimento certo dell'elettrocatetere: estrazione completa da considerare, <b>pesando il germe</b> — gli stafilococchi seminano più facilmente il dispositivo —, <b>il rischio procedurale e la chirurgia valvolare</b> " + corPill("IIa", "C") + pgs(R20b + "; " + P04 + "; " + F13) + ". Se rimuovere di routine il CIED in ogni EI sinistra resta senza prove" + pgs(P14) + ".");
+      if (e.occulta && e.c === "IIa") h += passo(true, "→", "EI possibile con " + (s.gram === "fungo" ? "fungemia occulta" : "batteriemia occulta da Gram-positivi") + " che persiste dopo un ciclo di terapia: rimozione completa del sistema da considerare " + corPill("IIa", "C") + pgs(R20b) + ", anche senza vegetazioni, se non c'è un'altra fonte" + pgs(P04) + ".");
+      if (e.occulta && e.c === "IIb") h += passo(true, "→", "EI possibile con batteriemia occulta da Gram-negativi persistente o recidivante dopo un ciclo di terapia: rimozione completa considerabile " + corPill("IIb", "C") + pgs(R20b) + ". Con i Gram-negativi l'infezione del dispositivo è meno probabile, e di solito la tasca ne mostra i segni" + pgs(P02) + ".");
+      h += passo(false, "·", "Il rischio procedurale si pesa sempre — anni di permanenza degli elettrocateteri, dipendenza dalla stimolazione, fragilità, comorbidità — in una <b>decisione condivisa</b>" + pgs(P04) + ".");
+    }
+    if (e.esito === "III") h += '<div class="esito"><span class="big">Non rimuovere</span>' + corPill("III", "C") + "</div>" + passo(true, "→", "Rimuovere il CIED dopo <b>una sola emocoltura positiva</b>, senza nessun'altra evidenza clinica d'infezione, non è raccomandato " + corPill("III", "C") + pgs(R20b) + ".");
+    if (e.esito === "guarita") h += '<div class="esito"><span class="big">Il dispositivo resta</span>' + chip("k0", "guarita") + "</div>" + passo(false, "·", "Batteriemia o fungemia senza altri criteri, guarita con la terapia: nella Fig. 13 il ramo finisce nella guarigione, senza estrazione" + pgs(F13) + ".");
+    if (e.esito === "terapia") h += '<div class="esito">' + chip("kx", "in attesa") + '<span class="muted">terapia antimicrobica in corso: decide l\'esito (passo 2)</span></div>' + passo(false, "·", "Batteriemia o fungemia senza altri criteri maggiori né altra fonte: <b>terapia antimicrobica</b>, poi guarigione, oppure batteriemia o fungemia persistente o recidivante, che apre la strada all'estrazione secondo il germe" + pgs(F13) + ".");
+    if (e.esito === "attesa") h += '<div class="esito">' + chip("kx", "in attesa") + '<span class="muted">si ripetono gli esami entro 7 giorni (passo 2)</span></div>';
+    if (e.esito === "noie") h += '<div class="esito"><span class="big">Nessuna estrazione per EI</span>' + chip("k0", "nessuna EI") + "</div>";
+    el("outEstr").innerHTML = h;
+
+    /* (c) · come si estrae, e il ponte */
+    h = "<h3>Come si estrae, e che cosa fa da ponte — § 12.4.7–12.4.8, p. 4004</h3>";
+    if (estrai) {
+      h += passo(false, "·", "In un <b>centro con esperienza</b>, <b>senza ritardo</b> — nei primi giorni del ricovero; via <b>percutanea</b> preferita, con strumenti dedicati e cardiochirurgia in sede, per il rischio di tamponamento e di lacerazione venosa" + pgs(P04) + ".");
+      if (s.chirV === "si") h += passo(true, "→", "Con la <b>chirurgia valvolare indicata</b>, la rimozione chirurgica è la tecnica preferita" + pgs(P04) + ".");
+      if (s.vegMm !== null && s.vegMm > VEG_GRANDE) h += passo(true, "→", "Vegetazione di " + giorniTxt(s.vegMm) + " mm, <b>oltre i 20 mm</b> dell'esempio della fonte: aspirazione percutanea prima dell'estrazione da considerare, per ridurre l'embolia; estrazione chirurgica da considerare se l'aspirazione non c'è o non riesce" + pgs(P04) + ".");
+      if (s.vegMm !== null && s.vegMm <= VEG_GRANDE) h += passo(false, "·", "Vegetazione di " + giorniTxt(s.vegMm) + " mm: entro i 20 mm dell'esempio della fonte, che non è un taglio validato" + pgs(P04) + ".");
+      h += passo(false, "·", "L'hardware estratto va in coltura, soprattutto la <b>punta dell'elettrocatetere</b>; la sonicazione aumenta la resa" + pgs(P04) + ".");
+      if (s.nonPoss) h += nota("stop", "<b>Rimozione completa impossibile</b> (casi eccezionali): antibiotici e.v. per <b>4–6 settimane</b> e follow-up stretto dopo la sospensione, oppure terapia orale soppressiva a lungo termine, su misura" + pgs(P04) + "." + (s.fungo ? " La fonte non distingue il germe: con un <b>fungo</b> lo strumento non le applica — nessuna durata, decide lo specialista (passo 5)." : ""));
+      if (s.pmDip === "si") h += passo(true, "⇢", "<b>Dipendente dalla stimolazione</b>: elettrocatetere a fissazione attiva dalla giugulare interna, collegato a un pacemaker esterno, fino a 4–6 settimane, lasciando libero il lato controlaterale per il definitivo; in alternativa un pacemaker epicardico prima dell'estrazione, al prezzo di più reinterventi sul dispositivo" + pgs(P04) + ".");
+      if (s.scd === "si") h += passo(true, "⇢", "<b>Alto rischio di morte improvvisa</b>: defibrillatore indossabile come ponte al reimpianto" + pgs(P04) + ".");
+      if (!s.pmDip || !s.scd) h += passo(false, "·", "Il ponte: —, servono la dipendenza dalla stimolazione e il rischio di morte improvvisa (passo 4).");
+    }
+    el("outCome").innerHTML = h;
+
+    /* (d) · la durata */
+    h = "<h3>Quanto antibiotico dopo l'estrazione — Fig. 13 · Rec. Table 20, p. 4005</h3>";
+    if (estrai) {
+      if (d.sett === null) h += '<div class="esito">' + chip("kx", "—") + '<span class="muted">' + d.perche + "</span></div>";
+      if (d.sett === "senza") h += '<div class="esito"><span class="big">4–6 settimane e.v.</span>' + chip("k3", "senza rimozione") + "</div>" + passo(false, "·", "Senza rimozione completa le durate della Fig. 13 non valgono: 4–6 settimane e.v. e follow-up stretto, o soppressiva orale a lungo termine" + pgs(P04) + ".");
+      if (d.sett === 6) h += '<div class="esito"><span class="big">6 settimane</span>' + corPill("IIa", "C") + "</div>" + passo(true, "→", "Con <b>" + d.motivo + "</b>: la figura dice 6 settimane; la riga «(4–6) settimane dopo l'estrazione» " + corPill("IIa", "C") + pgs(F13 + "; " + R20b) + ". Lo strumento mostra le 6 della figura, che sono anche il tetto della riga (vedi Incoerenze)." + (s.protV === "si" ? " Con una protesi sinistra, rimozione completa e antibiotico prolungato possono evitare che la protesi si infetti" + pgs(P04) + "." : ""));
+      if (d.sett === 4) h += '<div class="esito"><span class="big">4 settimane</span>' + figCl("IIa") + "</div>" + passo(true, "→", "Con <b>" + d.motivo + "</b> la figura dà 4 settimane «Classe IIa»" + pgs(F13) + ": nessuna riga della Rec. Table 20 le assegna (vedi Incoerenze).");
+      if (d.sett === "valv") h += '<div class="esito"><span class="big">Almeno 4 settimane</span>' + chip("k3", "EI valvolare") + "</div>" + passo(true, "→", "Con il <b>coinvolgimento valvolare</b> la riga delle 2 settimane non vale" + pgs(R20b) + ", e la figura non separa la valvola: le sue vegetazioni portano almeno alle 4 settimane della figura" + pgs(F13) + ". Lo strumento sceglie la lettura prudente: <b>la durata dell'EI valvolare per il germe e la valvola</b>, mai sotto le 4 settimane — il regime è nel <b>Tool Antibiotici EI</b>.");
+      if (d.sett === 2) h += '<div class="esito"><span class="big">2 settimane</span>' + corPill("IIb", "C") + "</div>" + passo(true, "→", "EI non da <i>S. aureus</i>, senza coinvolgimento valvolare né vegetazioni sugli elettrocateteri, con <b>emocolture di controllo negative</b> e senza emboli settici: 2 settimane di antibiotico dopo l'estrazione si possono considerare " + corPill("IIb", "C") + pgs(R20b) + ".");
+      // D21 (24/10/2026): fungo e rimozione completa impossibile — cercato
+      // online, nessuna fonte ha il dato per il CIED che resta in sede
+      if (d.fungo && d.senza) h += nota("stop", "<b>Fungo e rimozione completa impossibile: nessuna durata.</b> Per il sistema che non si rimuove del tutto la fonte dà 4–6 settimane e.v. e follow-up stretto, o la soppressiva orale a lungo termine, senza distinguere il germe" + pgs(P04) + ". Cercato online, nessuna fonte dà una durata o una terapia soppressiva per un fungo con il CIED che resta in sede" + ao() + ": la IDSA chiede di rimuovere tutto il dispositivo (rac. 65) e riporta il fallimento della sola terapia medica; la soppressiva cronica con fluconazolo la raccomanda solo per i dispositivi di assistenza ventricolare che non si possono rimuovere (rac. 69), che non sono CIED" + pgs(IDSA) + "; EHRA e AHA danno la soppressiva a lungo termine senza distinguere il germe, con opzioni solo antibiotiche" + pgs(EHRA + "; " + AHA24) + ". <b>Decide lo specialista</b>, con l'infettivologo (decisione del medico, 24/10/2026). La terapia antifungina è nel <b>Tool Antibiotici EI</b>.");
+      else if (d.fungo) {
+        h += nota("stop", "<b>Fungemia: nessuna durata.</b> La Fig. 13 e la Rec. Table 20 non danno una durata per i funghi dopo l'estrazione: la riga delle 2 settimane dice «non <i>S. aureus</i>» e non li distingue" + pgs(R20b + "; " + F13) + ". Lo strumento non dà una durata: <b>decide lo specialista</b>, con l'infettivologo (decisione del medico, 23/10/2026). La terapia antifungina è nel <b>Tool Antibiotici EI</b>.");
+        h += passo(s.vegL === "si", "·", "<b>Dopo la rimozione, con una <i>Candida</i> che coinvolge gli elettrocateteri</b>: almeno <b>6 settimane</b> di antifungino dopo la loro rimozione, raccomandazione forte con evidenza di bassa qualità (rac. 68)" + pgs(IDSA) + ao() + ". La ESC 2023 non lo dice; lo strumento non ne fa la sua durata, perché vale per <i>Candida</i>, che qui non si chiede, e per l'infezione degli elettrocateteri" + (s.vegL === "si" ? " — <b>qui</b> le vegetazioni sugli elettrocateteri ci sono." : "."));
+      }
+      if (d.pos) h += nota("stop", "<b>Emocolture positive dopo l'estrazione.</b> La riga delle 2 settimane chiede emocolture di controllo negative" + pgs(R20b) + ", e la Fig. 13 non ha un ramo per la batteriemia che persiste dopo l'estrazione: <b>nessuna durata</b> dallo strumento. Si cercano complicanze e fonti, e decide l'Endocarditis Team con l'infettivologo.");
+      if (d.candidato) h += nota("spenta", "Se le emocolture di controllo risultano negative: 2 settimane " + corPill("IIb", "C") + pgs(R20b) + ".");
+      if (typeof d.sett === "number" || d.sett === "valv") h += passo(false, "·", "Le settimane si contano <b>dopo l'estrazione</b>, come scrive la riga" + pgs(R20b) + ". Farmaci e dosi: <b>Tool Antibiotici EI</b>. Se e quando passare alla via orale, con i criteri della colonna CIED del supplementare" + pgs("ESC 2023, suppl. Tab. S8, p. 11") + ": <b>Tool Via orale EI</b>.");
+    }
+    el("outDur").innerHTML = h;
+
+    /* (e) · il reimpianto */
+    h = "<h3>Quando si reimpianta — Rec. Table 20, p. 4004 · Fig. 13, nota c</h3>";
+    if (estrai) {
+      if (r.stato === null) h += '<div class="esito">' + chip("kx", "—") + '<span class="muted">' + r.perche + "</span></div>";
+      if (r.stato === "senza") h += '<div class="esito">' + chip("kx", "nessun reimpianto") + '<span class="muted">' + r.perche + "</span></div>";
+      if (r.stato === "no") h += '<div class="esito"><span class="big">Nessun reimpianto</span>' + chip("k0", "indicazione caduta") + "</div>" + passo(false, "·", "L'indicazione a un nuovo dispositivo <b>si rivaluta sempre</b>" + pgs(P04) + ": qui non c'è più.");
+      if (r.stato === "riv") h += '<div class="esito">' + chip("kx", "da rivalutare") + '<span class="muted">l\'indicazione al reimpianto si rivaluta sempre (p. 4004)</span></div>';
+      if (r.stato === "attesa") h += '<div class="esito"><span class="big">Non ancora</span>' + chip("k3", r.motivo ? "infezione non spenta" : "mancano " + giorniTxt(r.mancano) + " giorni") + "</div>";
+      if (r.stato === "confine") h += '<div class="esito"><span class="big">Al confine</span>' + chip("k2", giorniTxt(r.soglia) + " giorni esatti") + "</div>" + nota("", "A " + (r.soglia === SOGLIA.breve ? "72 h" : "2 settimane") + " esatte la riga dice «almeno»" + pgs(R20a) + ", la nota della figura «più di»" + pgs(F13) + ": lo strumento non apre ancora la finestra. La regola resta «il più tardi possibile».");
+      if (r.stato === "finestra") h += '<div class="esito"><span class="big">Finestra aperta</span>' + corPill("I", "C") + "</div>";
+      if (r.soglia) h += passo(r.stato === "finestra" || r.stato === "attesa" || r.stato === "confine", "→", (r.soglia === SOGLIA.lunga ? "<b>" + (r.veg ? "Vegetazioni viste" : "Ghost dopo l'estrazione") + "</b>: emocolture negative da <b>almeno 2 settimane</b>" : "Senza vegetazioni né ghost: emocolture negative da <b>almeno 72 ore</b>") + " dopo l'estrazione, con segni e sintomi d'infezione locale e sistemica risolti " + corPill("I", "C") + pgs(R20a + "; " + F13 + "; " + P04) + (s.giorni !== null && inScala(s.giorni, "giorni") ? "; qui " + giorniTxt(s.giorni) + " giorni" : "") + ".");
+      if (r.stato !== "no" && r.stato !== "senza") {
+        h += passo(false, "·", "In una <b>sede lontana</b> dal vecchio generatore, <b>il più tardi possibile</b>; nessun pezzo del sistema rimosso si reimpianta; le prove sui tempi sono scarse" + pgs(R20a + "; " + P04) + ".");
+        h += passo(false, "·", "Se il rischio di una nuova infezione è alto, in pazienti selezionati: <b>pacemaker leadless</b> o <b>ICD sottocutaneo</b>" + pgs(P04) + ". Il modo di stimolazione del nuovo sistema si sceglie come in ogni bradicardia: <b>Tool Modo di pacing</b> e <b>Tool CSP</b>.");
+        h += passo(false, "·", "All'impianto: profilassi antibiotica che copra <i>S. aureus</i> " + corPill("I", "A") + pgs(R20a) + " — farmaci e dosi nel <b>Tool Profilassi EI</b>. Busta antibiotica nei pazienti selezionati ad alto rischio " + corPill("IIb", "B") + pgs(R20b) + ": il rischio lo stima il <b>Tool PADIT</b>, che però non conta la precedente infezione del dispositivo.");
+      }
+    }
+    el("outReimp").innerHTML = h;
+
+    /* (f) · incoerenze */
+    function inc(tocca, x) { return nota(tocca ? "" : "spenta", (tocca ? "<b>Tocca questo caso.</b> " : "") + x); }
+    el("outInc").innerHTML =
+      inc(s.diag === "possibile" || (s.tasca === "no" && s.toe === "neg"), "<b>La PET nel primo riquadro.</b> La Fig. 13 mette PET/TC (o SPECT) nel riquadro «Classe I» con emocolture ed eco" + pgs(F13) + "; la Rec. Table 6 la dà IIb B nell'EI possibile su CIED" + pgs(R6) + ", e la Fig. 7 separa la tasca («Classe I») dagli elettrocateteri («Classe IIb»)" + pgs(F7) + ". Qui vale la riga.") +
+      inc(s.diag === "possibile", "<b>«Entro 7 giorni» o «entro 5–7».</b> La Fig. 13 ripete gli esami entro 7 giorni" + pgs(F13) + "; il testo, la Fig. 7 e la Rec. Table 5 ripetono TTE e TOE entro 5–7 giorni" + pgs(P04 + "; " + R5) + ".") +
+      inc(s.rip === "batt" && (s.gram === "pos" || s.gram === "fungo"), "<b>«Con» o «o».</b> La riga IIa C scrive «EI possibile <b>con</b> batteriemia occulta da Gram-positivi o fungemia»" + pgs(R20b) + "; il riassunto della Tab. 4 «EI possibile <b>o</b> batteriemia occulta»" + pgs(T4) + ". Qui vale la riga.") +
+      inc(d.sett === 4, "<b>4 settimane «Classe IIa».</b> Per vegetazioni e/o <i>S. aureus</i> la classe è solo nella figura" + pgs(F13) + ": nessuna riga della Rec. Table 20 la assegna.") +
+      inc(d.sett === 6, "<b>6 settimane, o 4–6?</b> La figura dice 6" + pgs(F13) + "; la riga «(4–6)»" + pgs(R20b) + "; il riassunto della Tab. 3 e il testo «(4–)6»" + pgs(T3 + "; " + P04) + ".") +
+      inc(d.sett === "valv", "<b>La valvola e la durata.</b> La riga delle 2 settimane esclude il coinvolgimento valvolare" + pgs(R20b) + ", ma la Fig. 13 non dà una durata a parte per l'EI valvolare: lo strumento prende quella dell'EI valvolare, mai sotto le 4 settimane.") +
+      inc(s.ghost === "si" && r.soglia === SOGLIA.lunga && !r.veg, "<b>I ghost.</b> La nota c della figura e il testo li contano per i tempi del reimpianto" + pgs(F13 + "; " + P04) + "; la riga della Rec. Table 20 parla solo di vegetazioni" + pgs(R20a) + ". Lo strumento segue la figura: con un ghost, 2 settimane.") +
+      inc(r.stato === "confine", "<b>«Almeno» o «più di».</b> La riga scrive «almeno 72 h» e «almeno 2 settimane»" + pgs(R20a) + ", la nota c «più di 72 h» e «più di 2 settimane»" + pgs(F13) + ". Al confine esatto lo strumento aspetta.") +
+      inc(s.pmDip === "si" && estrai, "<b>Quanto dura il ponte giugulare.</b> «Fino a 4–6 settimane» nel testo" + pgs(P04) + ", «fino a 6 settimane» nei messaggi chiave" + pgs(P13) + ".");
+
+    /* (g) · limiti */
+    var lim = [];
+    lim.push("La sezione sui dispositivi segue il consenso EHRA sulle infezioni dei CIED" + pgs(P02) + ": le infezioni superficiali e quelle della sola tasca, senza EI, non sono in questo strumento.");
+    lim.push("Le prove sui tempi del reimpianto sono scarse" + pgs(P04) + ", e mancano dati randomizzati; non è provato se rimuovere di routine il CIED in ogni EI sinistra" + pgs(P14) + ".");
+    lim.push("Le classi delle frecce della figura che una riga non assegna (PET nel primo riquadro, 4 settimane) sono scritte come «figura: Classe …»; le altre sono quelle della Rec. Table 20.");
+    lim.push("<b>Letture dello strumento dove la fonte non decide</b>: con il coinvolgimento valvolare la durata è quella dell'EI valvolare, mai sotto 4 settimane; per la finestra del reimpianto contano come «vegetazioni viste» anche quelle valvolari, e un ghost vale come una vegetazione (la nota c della figura); a 72 h o a 2 settimane esatte la finestra non si apre ancora; con emocolture positive dopo l'estrazione nessuna durata; con una <b>fungemia</b> nessuna durata, decide lo specialista (decisione del medico, 23/10/2026), e nessuna nemmeno con un fungo e la rimozione completa impossibile (decisione del medico, 24/10/2026); «una sola emocoltura positiva» insieme a una batteriemia che persiste sono dati in contraddizione, e lo strumento non risponde.");
+    lim.push("<b>Il segno</b>" + ao() + " vuol dire: dati presi da documenti ufficiali fuori dalla ESC 2023, cercati in rete il 24/10/2026 su richiesta del medico, solo per il fungo — la linea guida IDSA 2016 sulla candidosi, il consenso EHRA 2020 e lo statement AHA 2024 sulle infezioni dei CIED. Non sono la fonte, né una scheda tecnica, né una lettura dello strumento: accanto a ognuno autore, anno, PMID e raccomandazione; nessuna dose viene da lì. Lo statement AHA 2010 non è stato letto (testo integrale non accessibile).");
+    lim.push("Nessuna dose: l'antibiotico empirico e quello mirato sono nel Tool Antibiotici EI, il passaggio alla via orale nel Tool Via orale EI, la profilassi all'impianto nel Tool Profilassi EI.");
+    el("limiti").innerHTML = "<li>" + lim.join("</li><li>") + "</li>";
+
+    /* (h) · barra */
+    function bar(id, k, x) { var b = el(id); b.className = "cat " + k; b.innerHTML = x; }
+    var be = estrai ? [EST[e.c][0], EST[e.c][1]] : (e.esito === "III" ? ["k0", "non rimuovere · III C"] : (e.esito === "guarita" ? ["k0", "no: guarita"] : (e.esito === "noie" ? ["k0", "nessuna EI"] : (e.esito === "attesa" || e.esito === "terapia" ? ["kx", "in attesa"] : ["kx", "—"]))));
+    bar("barEstr", be[0], be[1]);
+    bar("barDur", typeof d.sett === "number" ? "k1" : "kx", typeof d.sett === "number" ? d.sett + " settimane" : (d.sett === "valv" ? "≥4 settimane" : (d.sett === "senza" ? "4–6 sett. e.v." : (d.fungo ? "decide lo specialista" : "—"))));
+    var br = { finestra:["k0", "finestra aperta"], confine:["k2", "al confine"], attesa:["k3", "non ancora"], no:["kx", "nessuno"], riv:["kx", "da rivalutare"], senza:["kx", "—"] }[r.stato];
+    bar("barReimp", br ? br[0] : "kx", br ? br[1] : "—");
+  }
+
+  document.addEventListener("input", disegna);
+  document.addEventListener("change", disegna);
+  el("azzera").addEventListener("click", function () {
+    var ins = document.querySelectorAll("input"), i;
+    for (i = 0; i < ins.length; i++) {
+      if (ins[i].type === "checkbox" || ins[i].type === "radio") ins[i].checked = false;
+      else ins[i].value = "";
+    }
+    disegna();
+    window.scrollTo(0, 0);
+  });
+
+  window.CIED_MOTORE = { SOGLIA:SOGLIA, VEG_GRANDE:VEG_GRANDE, estrazione:estrazione, durata:durata, reimpianto:reimpianto };
+  disegna();
+})();
+</script>
+<script data-iphone="web">
+// Solo da un indirizzo https, cioe' dalla pagina pubblicata: aperto come file
+// il tool non cerca ne' manifest ne' service worker, che accanto al file non
+// ci sono. Un errore qui non deve fermare niente: e' un di piu'.
+(function(){
+if(location.protocol!=="https:") return;
+try{
+  var t=document.getElementsByTagName("head")[0];
+  var m=document.createElement("link"); m.rel="manifest"; m.href="manifest.webmanifest";
+  var i=document.createElement("link"); i.rel="apple-touch-icon"; i.href="icona-180.png";
+  t.appendChild(m); t.appendChild(i);
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js")["catch"](function(){});
+}catch(e){}
+})();
+</script>
+<script data-iphone="fine">document.documentElement.className+=" motore-ok";</script>
+</body>
+</html>
